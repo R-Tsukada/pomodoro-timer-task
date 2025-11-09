@@ -1,0 +1,92 @@
+# Dockerビルドから除外するファイル
+
+# 依存関係
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next
+out
+dist
+build
+
+# テスト
+coverage
+.nyc_output
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# 開発環境
+.env*.local
+.env.development
+.DS_Store
+*.pem
+
+# Git
+.git
+.gitignore
+.github
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# ログ
+*.log
+
+# その他
+README.md
+.prettierrc
+.eslintrc
+eslint.config.mjs
+.husky
+playwright.config.ts
+vitest.config.ts
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+test-results
+playwright-report
+
+# PWA
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/fallback-*.js
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini

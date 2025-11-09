@@ -1,0 +1,38 @@
+services:
+  # Next.js開発サーバー
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    container_name: pomodoro-timer-dev
+    ports:
+      - '3000:3000'
+    volumes:
+      # ソースコードをマウント（ホットリロード対応）
+      - .:/app
+      # node_modulesは除外（コンテナ内のものを使用）
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+    command: sh -c "pnpm install && pnpm dev"
+    restart: unless-stopped
+    # ヘルスチェック：Next.jsサーバーが正常に起動しているか確認
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # リソース制限（開発環境なので緩め）
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
