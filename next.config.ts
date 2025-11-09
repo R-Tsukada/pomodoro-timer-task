@@ -4,11 +4,8 @@ import withPWA from 'next-pwa'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // React Compiler サポート（Next.js 16）
-  reactCompiler: true,
-  // Turbopack 設定
-  turbopack: {
-    root: '/Users/ryo-tsukada/Desktop/pomodoro-nextjs',
-  },
+  // TODO: Phase 2以降で有効化する場合は babel-plugin-react-compiler をインストール
+  // reactCompiler: true,
 }
 
 // PWA設定
