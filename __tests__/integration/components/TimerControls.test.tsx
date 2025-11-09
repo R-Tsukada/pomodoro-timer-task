@@ -214,7 +214,7 @@ describe('TimerControls', () => {
   })
 
   describe('Styling', () => {
-    it('should apply different styles for start and pause buttons', () => {
+    it('should apply indigo background for start and pause buttons', () => {
       const mockStart = vi.fn()
       const mockPause = vi.fn()
       const mockReset = vi.fn()
@@ -229,8 +229,8 @@ describe('TimerControls', () => {
       )
 
       const startButton = screen.getByRole('button', { name: /start/i })
-      // Start button should have blue background
-      expect(startButton).toHaveClass('bg-blue-500')
+      // Start button should have indigo background
+      expect(startButton).toHaveClass('bg-indigo-500')
 
       rerender(
         <TimerControls
@@ -242,8 +242,8 @@ describe('TimerControls', () => {
       )
 
       const pauseButton = screen.getByRole('button', { name: /pause/i })
-      // Pause button should have amber background
-      expect(pauseButton).toHaveClass('bg-amber-500')
+      // Pause button should also have indigo background
+      expect(pauseButton).toHaveClass('bg-indigo-500')
     })
 
     it('should apply animation classes to buttons', () => {
@@ -263,13 +263,9 @@ describe('TimerControls', () => {
       const startButton = screen.getByRole('button', { name: /start/i })
       const resetButton = screen.getByRole('button', { name: /reset/i })
 
-      // Should have hover scale animation
-      expect(startButton).toHaveClass('hover:scale-105')
-      expect(resetButton).toHaveClass('hover:scale-105')
-
       // Should have active scale animation
-      expect(startButton).toHaveClass('active:scale-95')
-      expect(resetButton).toHaveClass('active:scale-95')
+      expect(startButton).toHaveClass('active:scale-[0.98]')
+      expect(resetButton).toHaveClass('active:scale-[0.98]')
     })
 
     it('should apply disabled styles when disabled', () => {

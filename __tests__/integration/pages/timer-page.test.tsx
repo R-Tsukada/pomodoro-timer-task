@@ -142,8 +142,8 @@ describe('Timer Page Integration', () => {
       const { container } = render(<HomePage />)
 
       const badge = screen.getByText('Focus').closest('span')
-      expect(badge).toHaveClass('bg-blue-500/15')
-      expect(badge).toHaveClass('text-blue-600')
+      expect(badge).toHaveClass('bg-gradient-to-r')
+      expect(badge).toHaveClass('text-white')
     })
 
     it('should apply correct colors for break mode', () => {
@@ -154,8 +154,8 @@ describe('Timer Page Integration', () => {
       const { container } = render(<HomePage />)
 
       const badge = screen.getByText('Short Break').closest('span')
-      expect(badge).toHaveClass('bg-green-500/15')
-      expect(badge).toHaveClass('text-green-600')
+      expect(badge).toHaveClass('bg-gradient-to-r')
+      expect(badge).toHaveClass('text-white')
     })
   })
 
@@ -181,13 +181,13 @@ describe('Timer Page Integration', () => {
 
       render(<HomePage />)
 
-      expect(screen.getByText(/Cycle: 2/i)).toBeInTheDocument()
+      expect(screen.getByText(/Cycle 2/i)).toBeInTheDocument()
     })
 
     it('should not display cycle count when cycles = 0', () => {
       render(<HomePage />)
 
-      expect(screen.queryByText(/Cycle:/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Cycle \d+/i)).not.toBeInTheDocument()
     })
   })
 

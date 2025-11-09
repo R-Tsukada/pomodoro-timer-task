@@ -38,13 +38,18 @@ export default function HomePage() {
   const isBreak = currentMode === 'shortBreak' || currentMode === 'longBreak'
 
   return (
-    <main className="min-h-screen bg-gray-100 flex flex-col">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex flex-col">
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
         {/* ヘッダー */}
-        <div className="bg-white shadow-sm px-4 py-3 flex items-center justify-end">
+        <div className="bg-white/80 backdrop-blur-sm shadow-sm px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Pomodoro Timer
+          </h1>
           <span
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-300 ${
-              isBreak ? 'bg-green-500/15 text-green-600' : 'bg-blue-500/15 text-blue-600'
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+              isBreak
+                ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-lg shadow-green-500/30'
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/30'
             }`}
           >
             {currentMode === 'focus'
@@ -56,7 +61,7 @@ export default function HomePage() {
         </div>
 
         {/* メインコンテンツエリア */}
-        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 space-y-6">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 space-y-8">
           {/* 円形タイマー */}
           <CircularTimer progress={progress} timeText={timeText} isBreak={isBreak} />
 

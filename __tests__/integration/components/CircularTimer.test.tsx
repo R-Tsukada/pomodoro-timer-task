@@ -53,36 +53,36 @@ describe('CircularTimer', () => {
   })
 
   describe('Color Scheme', () => {
-    it('should use blue color for focus mode', () => {
+    it('should use blue gradient for focus mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const progressCircle = container.querySelectorAll('circle')[1]
-      // Focus mode = blue
-      expect(progressCircle).toHaveClass('stroke-blue-500')
+      // Focus mode = blue gradient
+      expect(progressCircle).toHaveAttribute('stroke', 'url(#gradient-blue)')
     })
 
-    it('should use green color for break mode', () => {
+    it('should use green gradient for break mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="05:00" isBreak={true} />)
 
       const progressCircle = container.querySelectorAll('circle')[1]
-      // Break mode = green
-      expect(progressCircle).toHaveClass('stroke-green-500')
+      // Break mode = green gradient
+      expect(progressCircle).toHaveAttribute('stroke', 'url(#gradient-green)')
     })
 
     it('should use blue background for focus mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const backgroundCircle = container.querySelectorAll('circle')[0]
-      // Focus background = blue with opacity
-      expect(backgroundCircle).toHaveClass('stroke-blue-500/10')
+      // Focus background = blue RGB with opacity
+      expect(backgroundCircle).toHaveAttribute('stroke', 'rgb(59 130 246 / 0.15)')
     })
 
     it('should use green background for break mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="05:00" isBreak={true} />)
 
       const backgroundCircle = container.querySelectorAll('circle')[0]
-      // Break background = green with opacity
-      expect(backgroundCircle).toHaveClass('stroke-green-500/10')
+      // Break background = green RGB with opacity
+      expect(backgroundCircle).toHaveAttribute('stroke', 'rgb(34 197 94 / 0.15)')
     })
   })
 
@@ -105,10 +105,10 @@ describe('CircularTimer', () => {
       render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const timeText = screen.getByText('25:00')
-      // Should be large, bold, monospace
-      expect(timeText).toHaveClass('text-6xl')
-      expect(timeText).toHaveClass('font-bold')
-      expect(timeText).toHaveClass('font-mono')
+      // Should be large and extra bold
+      expect(timeText).toHaveClass('text-7xl')
+      expect(timeText).toHaveClass('font-extrabold')
+      expect(timeText).toHaveClass('text-gray-800')
     })
   })
 
