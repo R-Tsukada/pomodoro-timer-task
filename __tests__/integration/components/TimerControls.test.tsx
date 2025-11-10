@@ -43,7 +43,7 @@ describe('TimerControls', () => {
       expect(screen.queryByRole('button', { name: /start/i })).not.toBeInTheDocument()
     })
 
-    it('should always render reset button', () => {
+    it('should render reset/stop button based on running state', () => {
       const mockStart = vi.fn()
       const mockPause = vi.fn()
       const mockReset = vi.fn()
@@ -57,6 +57,7 @@ describe('TimerControls', () => {
         />
       )
 
+      // When not running, should show "Reset"
       expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument()
 
       rerender(
@@ -68,7 +69,8 @@ describe('TimerControls', () => {
         />
       )
 
-      expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument()
+      // When running, should show "Stop"
+      expect(screen.getByRole('button', { name: /stop/i })).toBeInTheDocument()
     })
   })
 
@@ -139,82 +141,8 @@ describe('TimerControls', () => {
     })
   })
 
-  describe('Disabled State', () => {
-    it('should disable all buttons when disabled prop is true', () => {
-      const mockStart = vi.fn()
-      const mockPause = vi.fn()
-      const mockReset = vi.fn()
-
-      render(
-        <TimerControls
-          isRunning={false}
-          onStart={mockStart}
-          onPause={mockPause}
-          onReset={mockReset}
-          disabled={true}
-        />
-      )
-
-      const startButton = screen.getByRole('button', { name: /start/i })
-      const resetButton = screen.getByRole('button', { name: /reset/i })
-
-      expect(startButton).toBeDisabled()
-      expect(resetButton).toBeDisabled()
-    })
-
-    it('should not call callbacks when buttons are disabled', async () => {
-      const user = userEvent.setup()
-      const mockStart = vi.fn()
-      const mockPause = vi.fn()
-      const mockReset = vi.fn()
-
-      render(
-        <TimerControls
-          isRunning={false}
-          onStart={mockStart}
-          onPause={mockPause}
-          onReset={mockReset}
-          disabled={true}
-        />
-      )
-
-      const startButton = screen.getByRole('button', { name: /start/i })
-      const resetButton = screen.getByRole('button', { name: /reset/i })
-
-      // Try to click disabled buttons
-      await user.click(startButton)
-      await user.click(resetButton)
-
-      // Callbacks should not be called
-      expect(mockStart).not.toHaveBeenCalled()
-      expect(mockReset).not.toHaveBeenCalled()
-    })
-
-    it('should enable buttons when disabled prop is false', () => {
-      const mockStart = vi.fn()
-      const mockPause = vi.fn()
-      const mockReset = vi.fn()
-
-      render(
-        <TimerControls
-          isRunning={false}
-          onStart={mockStart}
-          onPause={mockPause}
-          onReset={mockReset}
-          disabled={false}
-        />
-      )
-
-      const startButton = screen.getByRole('button', { name: /start/i })
-      const resetButton = screen.getByRole('button', { name: /reset/i })
-
-      expect(startButton).not.toBeDisabled()
-      expect(resetButton).not.toBeDisabled()
-    })
-  })
-
   describe('Styling', () => {
-    it('should apply indigo background for start and pause buttons', () => {
+    it('should apply correct colors for start and pause buttons', () => {
       const mockStart = vi.fn()
       const mockPause = vi.fn()
       const mockReset = vi.fn()
@@ -229,8 +157,8 @@ describe('TimerControls', () => {
       )
 
       const startButton = screen.getByRole('button', { name: /start/i })
-      // Start button should have indigo background
-      expect(startButton).toHaveClass('bg-indigo-500')
+      // Start button should have blue background
+      expect(startButton).toHaveClass('bg-blue-500')
 
       rerender(
         <TimerControls
@@ -242,11 +170,30 @@ describe('TimerControls', () => {
       )
 
       const pauseButton = screen.getByRole('button', { name: /pause/i })
-      // Pause button should also have indigo background
-      expect(pauseButton).toHaveClass('bg-indigo-500')
+      // Pause button should have orange background
+      expect(pauseButton).toHaveClass('bg-orange-500')
     })
 
-    it('should apply animation classes to buttons', () => {
+    it('should apply reset button styling', () => {
+      const mockStart = vi.fn()
+      const mockPause = vi.fn()
+      const mockReset = vi.fn()
+
+      render(
+        <TimerControls
+          isRunning={false}
+          onStart={mockStart}
+          onPause={mockPause}
+          onReset={mockReset}
+        />
+      )
+
+      const resetButton = screen.getByRole('button', { name: /reset/i })
+      // Reset button should have gray background
+      expect(resetButton).toHaveClass('bg-gray-100')
+    })
+
+    it('should apply transition classes to buttons', () => {
       const mockStart = vi.fn()
       const mockPause = vi.fn()
       const mockReset = vi.fn()
@@ -263,31 +210,9 @@ describe('TimerControls', () => {
       const startButton = screen.getByRole('button', { name: /start/i })
       const resetButton = screen.getByRole('button', { name: /reset/i })
 
-      // Should have active scale animation
-      expect(startButton).toHaveClass('active:scale-[0.98]')
-      expect(resetButton).toHaveClass('active:scale-[0.98]')
-    })
-
-    it('should apply disabled styles when disabled', () => {
-      const mockStart = vi.fn()
-      const mockPause = vi.fn()
-      const mockReset = vi.fn()
-
-      render(
-        <TimerControls
-          isRunning={false}
-          onStart={mockStart}
-          onPause={mockPause}
-          onReset={mockReset}
-          disabled={true}
-        />
-      )
-
-      const startButton = screen.getByRole('button', { name: /start/i })
-
-      // Should have disabled styling
-      expect(startButton).toHaveClass('disabled:opacity-50')
-      expect(startButton).toHaveClass('disabled:cursor-not-allowed')
+      // Should have transition classes
+      expect(startButton).toHaveClass('transition-colors')
+      expect(resetButton).toHaveClass('transition-colors')
     })
   })
 

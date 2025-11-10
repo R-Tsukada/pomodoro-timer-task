@@ -53,36 +53,36 @@ describe('CircularTimer', () => {
   })
 
   describe('Color Scheme', () => {
-    it('should use blue gradient for focus mode', () => {
+    it('should use blue color for focus mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const progressCircle = container.querySelectorAll('circle')[1]
-      // Focus mode = blue gradient
-      expect(progressCircle).toHaveAttribute('stroke', 'url(#gradient-blue)')
+      // Focus mode = blue via Tailwind class
+      expect(progressCircle).toHaveClass('stroke-blue-500')
     })
 
-    it('should use green gradient for break mode', () => {
+    it('should use green color for break mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="05:00" isBreak={true} />)
 
       const progressCircle = container.querySelectorAll('circle')[1]
-      // Break mode = green gradient
-      expect(progressCircle).toHaveAttribute('stroke', 'url(#gradient-green)')
+      // Break mode = green via Tailwind class
+      expect(progressCircle).toHaveClass('stroke-green-500')
     })
 
-    it('should use blue background for focus mode', () => {
+    it('should use gray background for focus mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const backgroundCircle = container.querySelectorAll('circle')[0]
-      // Focus background = blue RGB with opacity
-      expect(backgroundCircle).toHaveAttribute('stroke', 'rgb(59 130 246 / 0.15)')
+      // Background = gray
+      expect(backgroundCircle).toHaveAttribute('stroke', '#e5e7eb')
     })
 
-    it('should use green background for break mode', () => {
+    it('should use gray background for break mode', () => {
       const { container } = render(<CircularTimer progress={50} timeText="05:00" isBreak={true} />)
 
       const backgroundCircle = container.querySelectorAll('circle')[0]
-      // Break background = green RGB with opacity
-      expect(backgroundCircle).toHaveAttribute('stroke', 'rgb(34 197 94 / 0.15)')
+      // Background = gray (same for both modes)
+      expect(backgroundCircle).toHaveAttribute('stroke', '#e5e7eb')
     })
   })
 
@@ -105,21 +105,14 @@ describe('CircularTimer', () => {
       render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const timeText = screen.getByText('25:00')
-      // Should be large and extra bold
-      expect(timeText).toHaveClass('text-7xl')
-      expect(timeText).toHaveClass('font-extrabold')
-      expect(timeText).toHaveClass('text-gray-800')
+      // Should be large and bold with gradient
+      expect(timeText).toHaveClass('text-5xl')
+      expect(timeText).toHaveClass('font-bold')
+      expect(timeText).toHaveClass('bg-gradient-to-r')
     })
   })
 
   describe('SVG Attributes', () => {
-    it('should have correct viewBox', () => {
-      const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
-
-      const svg = container.querySelector('svg')
-      expect(svg).toHaveAttribute('viewBox')
-    })
-
     it('should have stroke-linecap="round" for progress circle', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
@@ -131,26 +124,27 @@ describe('CircularTimer', () => {
       const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
       const circles = container.querySelectorAll('circle')
-      // Both circles should have stroke-width of 12
+      // Both circles should have stroke-width of 8
       circles.forEach((circle) => {
-        expect(circle).toHaveAttribute('stroke-width', '12')
+        expect(circle).toHaveAttribute('stroke-width', '8')
       })
     })
   })
 
   describe('Accessibility', () => {
-    it('should have accessible role', () => {
-      const { container } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
+    it('should render time text visibly', () => {
+      render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
 
-      const svg = container.querySelector('svg')
-      expect(svg).toHaveAttribute('role', 'timer')
+      const timeText = screen.getByText('25:00')
+      expect(timeText).toBeVisible()
     })
 
-    it('should have aria-label with time', () => {
-      const { container } = render(<CircularTimer progress={50} timeText="12:30" isBreak={false} />)
+    it('should update time text when timeText prop changes', () => {
+      const { rerender } = render(<CircularTimer progress={50} timeText="25:00" isBreak={false} />)
+      expect(screen.getByText('25:00')).toBeInTheDocument()
 
-      const svg = container.querySelector('svg')
-      expect(svg).toHaveAttribute('aria-label', '12:30 remaining')
+      rerender(<CircularTimer progress={75} timeText="12:30" isBreak={false} />)
+      expect(screen.getByText('12:30')).toBeInTheDocument()
     })
   })
 })

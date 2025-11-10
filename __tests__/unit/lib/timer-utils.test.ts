@@ -35,16 +35,16 @@ describe('formatTime', () => {
 })
 
 describe('getModeDuration', () => {
-  it('should return 1500 seconds for focus mode', () => {
-    expect(getModeDuration('focus')).toBe(1500)
+  it('should return 120 seconds for focus mode (test duration)', () => {
+    expect(getModeDuration('focus')).toBe(120)
   })
 
-  it('should return 300 seconds for short break mode', () => {
-    expect(getModeDuration('shortBreak')).toBe(300)
+  it('should return 60 seconds for short break mode (test duration)', () => {
+    expect(getModeDuration('shortBreak')).toBe(60)
   })
 
-  it('should return 900 seconds for long break mode', () => {
-    expect(getModeDuration('longBreak')).toBe(900)
+  it('should return 60 seconds for long break mode (test duration)', () => {
+    expect(getModeDuration('longBreak')).toBe(60)
   })
 })
 

@@ -7,27 +7,27 @@ describe('SessionIndicator', () => {
     it('should render session dots', () => {
       const { container } = render(<SessionIndicator completedSessions={0} completedCycles={0} />)
 
-      // Should render 4 dots (for 4 sessions)
-      const dots = container.querySelectorAll('[data-testid="session-dot"]')
+      // Should render 4 dots (for 4 sessions) - using div elements with aria-label
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
       expect(dots).toHaveLength(4)
     })
 
     it('should render session count text', () => {
       render(<SessionIndicator completedSessions={2} completedCycles={0} />)
 
-      expect(screen.getByText('2/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 2 of 4')).toBeInTheDocument()
     })
 
     it('should render cycle count when cycles > 0', () => {
       render(<SessionIndicator completedSessions={0} completedCycles={2} />)
 
-      expect(screen.getByText(/Cycle 2/i)).toBeInTheDocument()
+      expect(screen.getByText(/2 cycles completed/i)).toBeInTheDocument()
     })
 
     it('should not render cycle count when cycles = 0', () => {
       render(<SessionIndicator completedSessions={0} completedCycles={0} />)
 
-      expect(screen.queryByText(/Cycle \d+/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/cycle.*completed/i)).not.toBeInTheDocument()
     })
   })
 
@@ -35,11 +35,10 @@ describe('SessionIndicator', () => {
     it('should show no filled dots when completedSessions = 0', () => {
       const { container } = render(<SessionIndicator completedSessions={0} completedCycles={0} />)
 
-      const dots = container.querySelectorAll('[data-testid="session-dot"]')
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
       dots.forEach((dot) => {
         // Empty dots should have gray background
-        expect(dot).toHaveClass('border-gray-300')
-        expect(dot).toHaveClass('bg-gray-200')
+        expect(dot).toHaveClass('bg-gray-300')
       })
     })
 
@@ -48,37 +47,36 @@ describe('SessionIndicator', () => {
         <SessionIndicator completedSessions={1} completedCycles={0} />
       )
 
-      let dots = container.querySelectorAll('[data-testid="session-dot"]')
+      let dots = container.querySelectorAll('div[aria-label*="Session"]')
       // First dot should be filled with gradient
-      expect(dots[0]).toHaveClass('bg-gradient-to-br')
-      expect(dots[0]).toHaveClass('border-blue-500')
+      expect(dots[0]).toHaveClass('bg-gradient-to-r')
+      expect(dots[0]).toHaveClass('from-blue-500')
       // Others should be empty
-      expect(dots[1]).toHaveClass('border-gray-300')
-      expect(dots[2]).toHaveClass('border-gray-300')
-      expect(dots[3]).toHaveClass('border-gray-300')
+      expect(dots[1]).toHaveClass('bg-gray-300')
+      expect(dots[2]).toHaveClass('bg-gray-300')
+      expect(dots[3]).toHaveClass('bg-gray-300')
 
       rerender(<SessionIndicator completedSessions={2} completedCycles={0} />)
-      dots = container.querySelectorAll('[data-testid="session-dot"]')
-      expect(dots[0]).toHaveClass('bg-gradient-to-br')
-      expect(dots[1]).toHaveClass('bg-gradient-to-br')
-      expect(dots[2]).toHaveClass('border-gray-300')
+      dots = container.querySelectorAll('div[aria-label*="Session"]')
+      expect(dots[0]).toHaveClass('bg-gradient-to-r')
+      expect(dots[1]).toHaveClass('bg-gradient-to-r')
+      expect(dots[2]).toHaveClass('bg-gray-300')
 
       rerender(<SessionIndicator completedSessions={3} completedCycles={0} />)
-      dots = container.querySelectorAll('[data-testid="session-dot"]')
-      expect(dots[0]).toHaveClass('bg-gradient-to-br')
-      expect(dots[1]).toHaveClass('bg-gradient-to-br')
-      expect(dots[2]).toHaveClass('bg-gradient-to-br')
-      expect(dots[3]).toHaveClass('border-gray-300')
+      dots = container.querySelectorAll('div[aria-label*="Session"]')
+      expect(dots[0]).toHaveClass('bg-gradient-to-r')
+      expect(dots[1]).toHaveClass('bg-gradient-to-r')
+      expect(dots[2]).toHaveClass('bg-gradient-to-r')
+      expect(dots[3]).toHaveClass('bg-gray-300')
     })
 
-    it('should turn all dots gold when completedSessions = 4', () => {
+    it('should fill all dots when completedSessions = 4', () => {
       const { container } = render(<SessionIndicator completedSessions={4} completedCycles={1} />)
 
-      const dots = container.querySelectorAll('[data-testid="session-dot"]')
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
       dots.forEach((dot) => {
         // All dots should be gradient for completed cycle
-        expect(dot).toHaveClass('bg-gradient-to-br')
-        expect(dot).toHaveClass('border-orange-500')
+        expect(dot).toHaveClass('bg-gradient-to-r')
       })
     })
   })
@@ -86,45 +84,45 @@ describe('SessionIndicator', () => {
   describe('Session Count Display', () => {
     it('should display correct session count for different values', () => {
       const { rerender } = render(<SessionIndicator completedSessions={0} completedCycles={0} />)
-      expect(screen.getByText('0/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 0 of 4')).toBeInTheDocument()
 
       rerender(<SessionIndicator completedSessions={1} completedCycles={0} />)
-      expect(screen.getByText('1/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 1 of 4')).toBeInTheDocument()
 
       rerender(<SessionIndicator completedSessions={2} completedCycles={0} />)
-      expect(screen.getByText('2/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 2 of 4')).toBeInTheDocument()
 
       rerender(<SessionIndicator completedSessions={3} completedCycles={0} />)
-      expect(screen.getByText('3/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 3 of 4')).toBeInTheDocument()
 
       rerender(<SessionIndicator completedSessions={4} completedCycles={1} />)
-      expect(screen.getByText('4/4')).toBeInTheDocument()
+      expect(screen.getByText('Session 4 of 4')).toBeInTheDocument()
     })
 
     it('should have correct styling for session count', () => {
       render(<SessionIndicator completedSessions={2} completedCycles={0} />)
 
-      const sessionCount = screen.getByText('2/4')
-      expect(sessionCount).toHaveClass('text-xl')
-      expect(sessionCount).toHaveClass('font-bold')
+      const sessionCount = screen.getByText('Session 2 of 4')
+      expect(sessionCount).toHaveClass('text-sm')
+      expect(sessionCount).toHaveClass('font-medium')
     })
   })
 
   describe('Cycle Count Display', () => {
     it('should display correct cycle count for different values', () => {
       const { rerender } = render(<SessionIndicator completedSessions={0} completedCycles={1} />)
-      expect(screen.getByText(/Cycle 1/i)).toBeInTheDocument()
+      expect(screen.getByText(/1 cycle completed/i)).toBeInTheDocument()
 
       rerender(<SessionIndicator completedSessions={0} completedCycles={5} />)
-      expect(screen.getByText(/Cycle 5/i)).toBeInTheDocument()
+      expect(screen.getByText(/5 cycles completed/i)).toBeInTheDocument()
     })
 
     it('should have correct styling for cycle count', () => {
       render(<SessionIndicator completedSessions={0} completedCycles={2} />)
 
-      const cycleText = screen.getByText(/Cycle 2/i)
-      expect(cycleText).toHaveClass('text-sm')
-      expect(cycleText).toHaveClass('text-gray-400')
+      const cycleText = screen.getByText(/2 cycles completed/i)
+      expect(cycleText).toHaveClass('text-xs')
+      expect(cycleText).toHaveClass('text-gray-500')
     })
   })
 
@@ -132,7 +130,7 @@ describe('SessionIndicator', () => {
     it('should apply transition classes to dots', () => {
       const { container } = render(<SessionIndicator completedSessions={2} completedCycles={0} />)
 
-      const dots = container.querySelectorAll('[data-testid="session-dot"]')
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
       dots.forEach((dot) => {
         expect(dot).toHaveClass('transition-all')
       })
@@ -141,7 +139,7 @@ describe('SessionIndicator', () => {
 
   describe('Layout', () => {
     it('should have proper container structure', () => {
-      const { container} = render(<SessionIndicator completedSessions={2} completedCycles={1} />)
+      const { container } = render(<SessionIndicator completedSessions={2} completedCycles={1} />)
 
       // Should have dots container
       const dotsContainer = container.querySelector('.flex.gap-3')
@@ -151,12 +149,12 @@ describe('SessionIndicator', () => {
     it('should display elements in correct order', () => {
       render(<SessionIndicator completedSessions={2} completedCycles={1} />)
 
-      const container = screen.getByText('2/4').closest('div')
+      const container = screen.getByText('Session 2 of 4').closest('div')
       expect(container).toBeInTheDocument()
 
       // Should contain both session count and cycle count
-      expect(screen.getByText('2/4')).toBeInTheDocument()
-      expect(screen.getByText(/Cycle 1/i)).toBeInTheDocument()
+      expect(screen.getByText('Session 2 of 4')).toBeInTheDocument()
+      expect(screen.getByText(/1 cycle completed/i)).toBeInTheDocument()
     })
   })
 
@@ -164,7 +162,7 @@ describe('SessionIndicator', () => {
     it('should handle completedSessions > 4', () => {
       const { container } = render(<SessionIndicator completedSessions={5} completedCycles={1} />)
 
-      const dots = container.querySelectorAll('[data-testid="session-dot"]')
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
       expect(dots).toHaveLength(4) // Still only 4 dots
     })
 
@@ -172,16 +170,18 @@ describe('SessionIndicator', () => {
       render(<SessionIndicator completedSessions={-1} completedCycles={0} />)
 
       // Should still render without errors
-      expect(screen.getByText('-1/4')).toBeInTheDocument()
+      expect(screen.getByText('Session -1 of 4')).toBeInTheDocument()
     })
   })
 
   describe('Accessibility', () => {
-    it('should have descriptive aria-label', () => {
+    it('should have descriptive aria-labels on dots', () => {
       const { container } = render(<SessionIndicator completedSessions={2} completedCycles={1} />)
 
-      const indicator = container.querySelector('[role="status"]')
-      expect(indicator).toHaveAttribute('aria-label')
+      const dots = container.querySelectorAll('div[aria-label*="Session"]')
+      dots.forEach((dot) => {
+        expect(dot).toHaveAttribute('aria-label')
+      })
     })
   })
 })
