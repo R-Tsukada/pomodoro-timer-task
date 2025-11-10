@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TaskList from '@/components/task/TaskList'
 import { useTaskStore } from '@/stores/task-store'
+import { useTimerStore } from '@/stores/timer-store'
 import { act, renderHook } from '@testing-library/react'
 
 describe('TaskList Component', () => {
@@ -217,6 +218,113 @@ describe('TaskList Component', () => {
         heading.textContent?.match(/^completed$/i)
       )
       expect(hasCompletedHeading).toBe(false)
+    })
+  })
+
+  describe('Timer Integration', () => {
+    beforeEach(() => {
+      // タスクを追加
+      const taskStore = useTaskStore.getState()
+      taskStore.addTask('Task 1')
+      taskStore.addTask('Task 2')
+      taskStore.addTask('Task 3')
+
+      // 最初のタスクを選択
+      const tasks = useTaskStore.getState().tasks
+      if (tasks.length > 0) {
+        taskStore.selectTask(tasks[0].id)
+      }
+
+      // タイマーをリセット
+      useTimerStore.getState().resetTimer()
+      useTimerStore.getState().pauseTimer()
+    })
+
+    it('should disable non-selected tasks when timer is running', async () => {
+      const user = userEvent.setup()
+
+      render(<TaskList />)
+
+      // タイマーを起動
+      act(() => {
+        useTimerStore.getState().startTimer()
+      })
+
+      // Task 2をクリックしようとする
+      const task2 = screen.getByText('Task 2')
+      const initialSelectedTask = screen.getByText('Task 1')
+
+      // Task 1が選択されている（ring-2クラス）
+      const task1Container = initialSelectedTask.closest('.ring-2')
+      expect(task1Container).toBeInTheDocument()
+
+      // Task 2をクリック
+      await user.click(task2)
+
+      // Task 1のまま（切り替わらない）
+      const stillSelectedTask = screen.getByText('Task 1')
+      const stillTask1Container = stillSelectedTask.closest('.ring-2')
+      expect(stillTask1Container).toBeInTheDocument()
+    })
+
+    it('should allow task switching when timer is paused', async () => {
+      const user = userEvent.setup()
+
+      render(<TaskList />)
+
+      // タイマーが停止中
+      act(() => {
+        useTimerStore.getState().pauseTimer()
+      })
+
+      // Task 1が選択されている
+      const task1 = screen.getByText('Task 1')
+      const task1Container = task1.closest('.ring-2')
+      expect(task1Container).toBeInTheDocument()
+
+      // Task 2をクリック
+      const task2 = screen.getByText('Task 2')
+      await user.click(task2)
+
+      // Task 2が選択される
+      const task2Container = task2.closest('.ring-2')
+      expect(task2Container).toBeInTheDocument()
+    })
+
+    it('should apply disabled styling to non-selected tasks when timer is running', () => {
+      render(<TaskList />)
+
+      // タイマーを起動
+      act(() => {
+        useTimerStore.getState().startTimer()
+      })
+
+      // Task 2とTask 3がグレーアウト（opacity-50）
+      const task2 = screen.getByText('Task 2')
+      const task2Container = task2.closest('.opacity-50')
+      expect(task2Container).toBeInTheDocument()
+
+      const task3 = screen.getByText('Task 3')
+      const task3Container = task3.closest('.opacity-50')
+      expect(task3Container).toBeInTheDocument()
+    })
+
+    it('should not apply disabled styling to selected task even when timer is running', () => {
+      const { container } = render(<TaskList />)
+
+      // タイマーを起動
+      act(() => {
+        useTimerStore.getState().startTimer()
+      })
+
+      // Task 1（選択中）はring-2クラスがある
+      const task1 = screen.getByText('Task 1')
+      const task1Container = task1.closest('.ring-2')
+      expect(task1Container).toBeInTheDocument()
+
+      // opacity-50クラスは適用されていない
+      const task1ContainerWithOpacity = task1.closest('.opacity-50')
+      expect(task1ContainerWithOpacity).not.toBeInTheDocument()
     })
   })
 })

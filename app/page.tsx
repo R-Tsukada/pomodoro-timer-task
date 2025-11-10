@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTimerStore } from '@/stores/timer-store'
 import { useTasks } from '@/hooks/useTasks'
 import { CircularTimer } from '@/components/timer/CircularTimer'
@@ -23,8 +23,9 @@ export default function HomePage() {
   } = useTimerStore()
 
   const { selectedTask, incrementSessionCount } = useTasks()
-  const prevTimeRef = useRef(timeRemaining)
-  const prevModeRef = useRef(currentMode)
+  const prevCompletedSessionsRef = useRef(completedSessionsInCycle)
+  const prevSelectedTaskIdRef = useRef(selectedTask?.id)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   // タイマーのtick処理（1秒ごと）
   useEffect(() => {
@@ -39,20 +40,29 @@ export default function HomePage() {
 
   // Focusセッション完了時に選択中のタスクのセッション数をインクリメント
   useEffect(() => {
-    // 前回がfocusモードで、時間が1→0になった場合
-    if (
-      prevModeRef.current === 'focus' &&
-      prevTimeRef.current === 1 &&
-      timeRemaining === 0 &&
-      selectedTask
-    ) {
+    // completedSessionsInCycleが増加した場合、focusセッションが完了したと判断
+    if (completedSessionsInCycle > prevCompletedSessionsRef.current && selectedTask) {
       incrementSessionCount(selectedTask.id)
     }
 
     // 現在の値を保存
-    prevTimeRef.current = timeRemaining
-    prevModeRef.current = currentMode
-  }, [timeRemaining, currentMode, selectedTask, incrementSessionCount])
+    prevCompletedSessionsRef.current = completedSessionsInCycle
+  }, [completedSessionsInCycle, selectedTask, incrementSessionCount])
+
+  // タスク切り替え時にタイマーをリセット
+  useEffect(() => {
+    const currentTaskId = selectedTask?.id
+    const prevTaskId = prevSelectedTaskIdRef.current
+
+    // タスクが切り替わった場合（nullから選択、または別のタスクに変更）
+    if (currentTaskId !== prevTaskId && !isRunning) {
+      // タイマーが停止中の場合のみリセット
+      resetTimer()
+    }
+
+    // 現在のタスクIDを保存
+    prevSelectedTaskIdRef.current = currentTaskId
+  }, [selectedTask?.id, isRunning, resetTimer])
 
   // プログレスバーの計算
   const totalTime = getModeDuration(currentMode)
@@ -64,9 +74,42 @@ export default function HomePage() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* ヘッダー */}
       <div className="bg-white/80 backdrop-blur-sm shadow-sm px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Pomodoro Timer
-        </h1>
+        <div className="flex items-center gap-4">
+          {/* サイドバートグルボタン */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Toggle sidebar"
+          >
+            <svg
+              className="w-6 h-6 text-gray-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isSidebarOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Pomodoro Timer
+          </h1>
+        </div>
+
         <span
           className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
             isBreak
@@ -83,9 +126,59 @@ export default function HomePage() {
       </div>
 
       {/* メインコンテンツ：2カラムレイアウト */}
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-73px)]">
-        {/* 左側：タイマーエリア */}
-        <div className="flex-1 flex flex-col">
+      <div className="relative lg:flex lg:flex-row min-h-[calc(100vh-73px)]">
+        {/* モバイル用背景オーバーレイ */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* 左側：タスクリストサイドバー */}
+        <div
+          className={`fixed lg:relative inset-y-0 left-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg flex flex-col transition-all duration-300 overflow-hidden ${
+            isSidebarOpen
+              ? 'translate-x-0 w-80 lg:w-96 border-r border-gray-200'
+              : '-translate-x-full w-80 lg:translate-x-0 lg:w-0 lg:border-r-0'
+          }`}
+        >
+          <div className="px-6 py-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-800">Tasks</h2>
+              {/* モバイル用閉じるボタン */}
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close sidebar"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <TaskList />
+          </div>
+          {/* デスクトップ用フッター */}
+          <div className="hidden lg:block bg-white/60 backdrop-blur-sm px-6 py-3 text-center border-t border-gray-200">
+            <p className="text-xs text-gray-500">Stay focused • Take breaks • Be productive</p>
+          </div>
+        </div>
+
+        {/* 右側：タイマーエリア */}
+        <div className="flex-1 flex flex-col min-h-[calc(100vh-73px)]">
           <div className="flex-1 flex flex-col items-center justify-center px-8 py-8 space-y-10">
             {/* 選択中のタスク表示 */}
             {selectedTask ? (
@@ -135,20 +228,6 @@ export default function HomePage() {
 
           {/* フッター */}
           <div className="bg-white/60 backdrop-blur-sm px-6 py-3 text-center lg:hidden">
-            <p className="text-xs text-gray-500">Stay focused • Take breaks • Be productive</p>
-          </div>
-        </div>
-
-        {/* 右側：タスクリストサイドバー */}
-        <div className="w-full lg:w-96 bg-white/90 backdrop-blur-sm shadow-lg border-l border-gray-200 flex flex-col">
-          <div className="px-6 py-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-800">Tasks</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <TaskList />
-          </div>
-          {/* デスクトップ用フッター */}
-          <div className="hidden lg:block bg-white/60 backdrop-blur-sm px-6 py-3 text-center border-t border-gray-200">
             <p className="text-xs text-gray-500">Stay focused • Take breaks • Be productive</p>
           </div>
         </div>

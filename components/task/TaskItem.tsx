@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 interface TaskItemProps {
   task: PomodoroTask
   isSelected: boolean
+  isDisabled?: boolean
   onToggleComplete: (id: string) => void
   onSelect: (id: string) => void
   onDelete: (id: string) => void
@@ -14,17 +15,25 @@ interface TaskItemProps {
 export default function TaskItem({
   task,
   isSelected,
+  isDisabled = false,
   onToggleComplete,
   onSelect,
   onDelete,
 }: TaskItemProps) {
+  const handleSelect = () => {
+    if (!isDisabled && !task.isCompleted) {
+      onSelect(task.id)
+    }
+  }
+
   return (
     <div
       className={cn(
         'group relative flex items-center gap-3 rounded-lg border bg-white p-3 transition-all',
-        'hover:shadow-md',
+        !isDisabled && !task.isCompleted && 'hover:shadow-md',
         isSelected && 'ring-2 ring-blue-500 bg-blue-50',
-        task.isCompleted && 'opacity-60'
+        task.isCompleted && 'opacity-60',
+        isDisabled && !isSelected && 'opacity-50 cursor-not-allowed'
       )}
     >
       {/* チェックボックス */}
@@ -48,7 +57,15 @@ export default function TaskItem({
       </div>
 
       {/* タスク内容 */}
-      <div className="flex-1 cursor-pointer min-w-0" onClick={() => onSelect(task.id)}>
+      <div
+        className={cn(
+          'flex-1 min-w-0',
+          !isDisabled && !task.isCompleted && 'cursor-pointer',
+          isDisabled && !isSelected && 'cursor-not-allowed'
+        )}
+        onClick={handleSelect}
+        title={isDisabled && !isSelected ? 'Stop the timer to switch tasks' : undefined}
+      >
         <h3
           className={cn(
             'text-sm font-medium text-gray-900 truncate',

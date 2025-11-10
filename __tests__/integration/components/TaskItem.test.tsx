@@ -250,4 +250,124 @@ describe('TaskItem Component', () => {
       expect(screen.getByText('12')).toBeInTheDocument()
     })
   })
+
+  describe('Disabled State', () => {
+    it('should not call onSelect when disabled and task name is clicked', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TaskItem
+          task={mockTask}
+          isSelected={false}
+          isDisabled={true}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      const taskName = screen.getByText(mockTask.name)
+      await user.click(taskName)
+
+      expect(mockOnSelect).not.toHaveBeenCalled()
+    })
+
+    it('should apply disabled styling when disabled and not selected', () => {
+      const { container } = render(
+        <TaskItem
+          task={mockTask}
+          isSelected={false}
+          isDisabled={true}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      const taskContainer = container.querySelector('.opacity-50')
+      expect(taskContainer).toBeInTheDocument()
+    })
+
+    it('should not apply disabled styling when disabled but selected', () => {
+      const { container } = render(
+        <TaskItem
+          task={mockTask}
+          isSelected={true}
+          isDisabled={true}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      // 選択されているのでring-2クラスがある
+      const taskContainer = container.querySelector('.ring-2')
+      expect(taskContainer).toBeInTheDocument()
+
+      // 選択されているのでopacity-50はない（ring-2とbg-blue-50がある）
+      const elements = container.querySelectorAll('.opacity-50')
+      expect(elements.length).toBe(0)
+    })
+
+    it('should still allow checkbox toggle when disabled', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TaskItem
+          task={mockTask}
+          isSelected={false}
+          isDisabled={true}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      const checkbox = screen.getByRole('checkbox')
+      await user.click(checkbox)
+
+      expect(mockOnToggle).toHaveBeenCalledWith(mockTask.id)
+    })
+
+    it('should still allow delete when disabled', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TaskItem
+          task={mockTask}
+          isSelected={false}
+          isDisabled={true}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      const deleteButton = screen.getByLabelText(`Delete task "${mockTask.name}"`)
+      await user.click(deleteButton)
+
+      expect(mockOnDelete).toHaveBeenCalledWith(mockTask.id)
+    })
+
+    it('should not allow selection of completed tasks even when not disabled', async () => {
+      const user = userEvent.setup()
+      const completedTask = { ...mockTask, isCompleted: true }
+
+      render(
+        <TaskItem
+          task={completedTask}
+          isSelected={false}
+          isDisabled={false}
+          onToggleComplete={mockOnToggle}
+          onSelect={mockOnSelect}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      const taskName = screen.getByText(mockTask.name)
+      await user.click(taskName)
+
+      expect(mockOnSelect).not.toHaveBeenCalled()
+    })
+  })
 })

@@ -1,6 +1,7 @@
 'use client'
 
 import { useTasks } from '@/hooks/useTasks'
+import { useTimerStore } from '@/stores/timer-store'
 import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
 
@@ -16,6 +17,8 @@ export default function TaskList() {
     toggleTaskCompletion,
     selectTask,
   } = useTasks()
+
+  const isRunning = useTimerStore((state) => state.isRunning)
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
@@ -57,6 +60,7 @@ export default function TaskList() {
               key={task.id}
               task={task}
               isSelected={selectedTaskId === task.id}
+              isDisabled={isRunning && selectedTaskId !== task.id}
               onToggleComplete={toggleTaskCompletion}
               onSelect={selectTask}
               onDelete={deleteTask}
@@ -79,6 +83,7 @@ export default function TaskList() {
                 key={task.id}
                 task={task}
                 isSelected={selectedTaskId === task.id}
+                isDisabled={isRunning && selectedTaskId !== task.id}
                 onToggleComplete={toggleTaskCompletion}
                 onSelect={selectTask}
                 onDelete={deleteTask}
