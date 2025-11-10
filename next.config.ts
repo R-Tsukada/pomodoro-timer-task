@@ -12,14 +12,6 @@ const nextConfig: NextConfig = {
 }
 
 // PWA設定
-// TODO: next-pwaのNext.js 16サポート待ち、Phase 4で対応
-// import withPWA from 'next-pwa'
-// const pwaConfig = withPWA({
-//   dest: 'public',
-//   register: true,
-//   skipWaiting: true,
-//   disable: process.env.NODE_ENV === 'development',
-// })
-// export default pwaConfig(nextConfig)
-
+// Service Workerは public/sw.js で手動実装
+// app/register-sw.tsx でクライアントサイドから登録
 export default nextConfig
