@@ -42,7 +42,7 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
         {/* ヘッダー */}
         <div className="bg-white/80 backdrop-blur-sm shadow-sm px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Pomodoro Timer
           </h1>
           <span
@@ -53,7 +53,7 @@ export default function HomePage() {
             }`}
           >
             {currentMode === 'focus'
-              ? 'Focus'
+              ? 'Focus Time'
               : currentMode === 'shortBreak'
                 ? 'Short Break'
                 : 'Long Break'}
@@ -61,23 +61,32 @@ export default function HomePage() {
         </div>
 
         {/* メインコンテンツエリア */}
-        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 space-y-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 py-8 space-y-10">
           {/* 円形タイマー */}
-          <CircularTimer progress={progress} timeText={timeText} isBreak={isBreak} />
+          <div className="relative">
+            <CircularTimer progress={progress} timeText={timeText} isBreak={isBreak} />
+          </div>
 
-          {/* セッション情報 */}
+          {/* セッション進捗インジケーター（タイマーのすぐ下に配置） */}
           <SessionIndicator
             completedSessions={completedSessionsInCycle}
             completedCycles={completedCycles}
           />
 
-          {/* コントロールボタン */}
-          <TimerControls
-            isRunning={isRunning}
-            onStart={startTimer}
-            onPause={pauseTimer}
-            onReset={resetTimer}
-          />
+          {/* コントロールボタン（より大きく、見やすく） */}
+          <div className="w-full flex justify-center mt-4">
+            <TimerControls
+              isRunning={isRunning}
+              onStart={startTimer}
+              onPause={pauseTimer}
+              onReset={resetTimer}
+            />
+          </div>
+        </div>
+
+        {/* フッター（オプション） */}
+        <div className="bg-white/60 backdrop-blur-sm px-6 py-3 text-center">
+          <p className="text-xs text-gray-500">Stay focused • Take breaks • Be productive</p>
         </div>
       </div>
     </main>

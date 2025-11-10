@@ -1,81 +1,52 @@
+'use client'
+
 interface CircularTimerProps {
-  /** 進捗率（0-100） */
   progress: number
-  /** 表示する時間テキスト（MM:SS形式） */
   timeText: string
-  /** Breakモードかどうか */
   isBreak: boolean
 }
 
 export function CircularTimer({ progress, timeText, isBreak }: CircularTimerProps) {
-  // サイズと線の太さ（iOSアプリと同じ）
-  const size = 280
-  const strokeWidth = 12
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-
-  // プログレスに応じたstroke-dashoffsetを計算
+  const radius = 120
+  const strokeWidth = 8
+  const normalizedRadius = radius - strokeWidth * 2
+  const circumference = normalizedRadius * 2 * Math.PI
   const strokeDashoffset = circumference - (progress / 100) * circumference
 
   return (
-    <div className="relative inline-flex items-center justify-center">
-      {/* グローエフェクト用の背景レイヤー */}
-      <div className="absolute inset-0 bg-white rounded-full shadow-2xl" />
-
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        style={{ transform: 'rotate(90deg) scaleX(-1)' }}
-        className="relative z-10"
-        role="timer"
-        aria-label={`${timeText} remaining`}
-      >
+    <div className="relative">
+      {/* SVG円形プログレスバー - 左回り（反時計回り） */}
+      <svg height={radius * 2} width={radius * 2} className="transform rotate-90 scale-x-[-1]">
         {/* 背景の円 */}
         <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={isBreak ? 'rgb(34 197 94 / 0.15)' : 'rgb(59 130 246 / 0.15)'}
+          stroke="#e5e7eb"
+          fill="transparent"
           strokeWidth={strokeWidth}
-          className="transition-colors duration-500"
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
         />
-
-        {/* プログレスの円 - グラデーション */}
+        {/* プログレスバー */}
         <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={isBreak ? 'url(#gradient-green)' : 'url(#gradient-blue)'}
+          className={`transition-all duration-1000 ease-linear ${
+            isBreak ? 'stroke-green-500' : 'stroke-blue-500'
+          }`}
+          fill="transparent"
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
+          strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={strokeDashoffset}
-          className="transition-all duration-1000 drop-shadow-lg"
-          style={{
-            strokeDasharray: circumference,
-            strokeDashoffset: strokeDashoffset,
-          }}
+          strokeLinecap="round"
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
         />
-
-        {/* グラデーション定義 */}
-        <defs>
-          <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgb(59 130 246)" />
-            <stop offset="100%" stopColor="rgb(147 51 234)" />
-          </linearGradient>
-          <linearGradient id="gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgb(34 197 94)" />
-            <stop offset="100%" stopColor="rgb(16 185 129)" />
-          </linearGradient>
-        </defs>
       </svg>
 
-      {/* 中央の時間表示 */}
-      <div className="absolute inset-0 flex items-center justify-center z-20">
-        <span className="text-7xl font-extrabold tracking-tight text-gray-800">{timeText}</span>
+      {/* 時間表示 */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-5xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+          {timeText}
+        </span>
       </div>
     </div>
   )

@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* カスタムカラー */
+  --color-focus: #3b82f6;
+  --color-short-break: #10b981;
+  --color-long-break: #f97316;
+}
 
 :root {
   --foreground-rgb: 31, 41, 55;
@@ -20,10 +25,4 @@ body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
     rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
 }

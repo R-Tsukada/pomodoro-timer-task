@@ -1,43 +1,35 @@
+'use client'
+
+import React from 'react'
+
 interface TimerControlsProps {
-  /** タイマーが実行中かどうか */
   isRunning: boolean
-  /** 開始ボタンクリック時のコールバック */
   onStart: () => void
-  /** 一時停止ボタンクリック時のコールバック */
   onPause: () => void
-  /** リセットボタンクリック時のコールバック */
   onReset: () => void
-  /** ボタンを無効化するかどうか（タスク未選択時など） */
-  disabled?: boolean
 }
 
-export function TimerControls({
-  isRunning,
-  onStart,
-  onPause,
-  onReset,
-  disabled = false,
-}: TimerControlsProps) {
+export function TimerControls({ isRunning, onStart, onPause, onReset }: TimerControlsProps) {
   return (
-    <div className="flex justify-center gap-6 pt-8">
-      {/* Start/Pauseボタン - 塗りつぶしスタイル */}
+    <div className="flex items-center gap-4 w-full max-w-sm">
+      {/* Start/Pause ボタン */}
       <button
+        type="button"
         onClick={isRunning ? onPause : onStart}
-        disabled={disabled}
-        className="w-40 py-4 px-8 rounded-xl text-white text-lg font-semibold bg-indigo-500 transition-all duration-200 hover:bg-indigo-600 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label={isRunning ? 'Pause' : 'Start'}
+        className={`flex-1 px-6 py-3 rounded-xl font-medium text-white transition-colors duration-200 ${
+          isRunning ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-500 hover:bg-blue-600'
+        }`}
       >
         {isRunning ? 'Pause' : 'Start'}
       </button>
 
-      {/* Resetボタン - アウトラインスタイル */}
+      {/* Reset/Stop ボタン */}
       <button
+        type="button"
         onClick={onReset}
-        disabled={disabled}
-        className="w-40 py-4 px-8 rounded-xl text-indigo-400 text-lg font-semibold bg-slate-700/50 transition-all duration-200 hover:bg-slate-700/70 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Reset"
+        className="flex-1 px-6 py-3 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
       >
-        Reset
+        {isRunning ? 'Stop' : 'Reset'}
       </button>
     </div>
   )
