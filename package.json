@@ -23,6 +23,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.0",
+    "uuid": "^13.0.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
@@ -35,7 +36,9 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/uuid": "^11.0.0",
     "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^4.0.8",
     "@vitest/ui": "^2.0.0",
     "autoprefixer": "^10.4.0",
     "eslint": "^9.0.0",
