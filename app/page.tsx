@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTimerStore } from '@/stores/timer-store'
 import { useTasks } from '@/hooks/useTasks'
+import { useNotification } from '@/hooks/useNotification'
 import { CircularTimer } from '@/components/timer/CircularTimer'
 import { TimerControls } from '@/components/timer/TimerControls'
 import { SessionIndicator } from '@/components/timer/SessionIndicator'
@@ -23,8 +24,17 @@ export default function HomePage() {
   } = useTimerStore()
 
   const { selectedTask, incrementSessionCount } = useTasks()
+  const {
+    permission,
+    requestPermission,
+    notifyFocusComplete,
+    notifyBreakComplete,
+    notifyLongBreakComplete,
+  } = useNotification()
+
   const prevCompletedSessionsRef = useRef(completedSessionsInCycle)
   const prevSelectedTaskIdRef = useRef(selectedTask?.id)
+  const prevModeRef = useRef(currentMode)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   // タイマーのtick処理（1秒ごと）
@@ -63,6 +73,42 @@ export default function HomePage() {
     // 現在のタスクIDを保存
     prevSelectedTaskIdRef.current = currentTaskId
   }, [selectedTask?.id, isRunning, resetTimer])
+
+  // セッション完了時の通知
+  useEffect(() => {
+    const prevMode = prevModeRef.current
+
+    // モードが変わった時に通知を表示
+    if (prevMode !== currentMode) {
+      // Focus → Break の遷移: Focus完了通知
+      if (prevMode === 'focus' && (currentMode === 'shortBreak' || currentMode === 'longBreak')) {
+        notifyFocusComplete()
+      }
+      // Short Break → Focus の遷移: Break完了通知
+      else if (prevMode === 'shortBreak' && currentMode === 'focus') {
+        notifyBreakComplete()
+      }
+      // Long Break → Focus の遷移: Long Break完了通知
+      else if (prevMode === 'longBreak' && currentMode === 'focus') {
+        notifyLongBreakComplete()
+      }
+    }
+
+    // 現在のモードを保存
+    prevModeRef.current = currentMode
+  }, [currentMode, notifyFocusComplete, notifyBreakComplete, notifyLongBreakComplete])
+
+  // 初回訪問時に通知権限をリクエスト
+  useEffect(() => {
+    if (permission === 'default') {
+      // 少し遅延させて、ユーザー体験を向上
+      const timer = setTimeout(() => {
+        requestPermission()
+      }, 2000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [permission, requestPermission])
 
   // プログレスバーの計算
   const totalTime = getModeDuration(currentMode)
