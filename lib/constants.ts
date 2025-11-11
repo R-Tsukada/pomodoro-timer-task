@@ -20,12 +20,11 @@ export const CURRENT_DATA_VERSION = 1
 
 /**
  * タイマーのデフォルト時間（秒）
- * ✅ テスト用に短縮（Focus: 2分、Break: 1分）
  */
 export const TIMER_DURATIONS = {
-  focus: 120, // 2分（テスト用）
-  shortBreak: 60, // 1分（テスト用）
-  longBreak: 60, // 1分（テスト用）
+  focus: 1500, // 25分
+  shortBreak: 300, // 5分
+  longBreak: 900, // 15分
 } as const
 
 /**

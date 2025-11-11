@@ -30,7 +30,7 @@ describe('Timer Page Integration', () => {
       expect(screen.getByText(/Pomodoro Timer/i)).toBeInTheDocument()
 
       // タイマー表示（時間）- テスト用2分
-      expect(screen.getByText('02:00')).toBeInTheDocument()
+      expect(screen.getByText('25:00')).toBeInTheDocument()
 
       // コントロールボタン
       expect(screen.getByRole('button', { name: /start/i })).toBeInTheDocument()
@@ -105,8 +105,8 @@ describe('Timer Page Integration', () => {
       const resetButton = screen.getByRole('button', { name: /reset/i })
       await user.click(resetButton)
 
-      // 02:00に戻ることを確認（テスト用2分）
-      expect(screen.getByText('02:00')).toBeInTheDocument()
+      // 25:00に戻ることを確認
+      expect(screen.getByText('25:00')).toBeInTheDocument()
     })
   })
 
@@ -201,16 +201,16 @@ describe('Timer Page Integration', () => {
         useTimerStore.getState().startTimer()
       })
 
-      // 初期状態: 02:00（テスト用2分）
-      expect(screen.getByText('02:00')).toBeInTheDocument()
+      // 初期状態: 25:00
+      expect(screen.getByText('25:00')).toBeInTheDocument()
 
       // 1秒経過
       act(() => {
         useTimerStore.getState().tick()
       })
 
-      // 01:59になることを確認
-      expect(screen.getByText('01:59')).toBeInTheDocument()
+      // 24:59になることを確認
+      expect(screen.getByText('24:59')).toBeInTheDocument()
 
       vi.useRealTimers()
     })
@@ -218,22 +218,22 @@ describe('Timer Page Integration', () => {
     it('should show correct time for different modes', () => {
       const { rerender } = render(<HomePage />)
 
-      // Focus mode: 02:00（テスト用2分）
-      expect(screen.getByText('02:00')).toBeInTheDocument()
+      // Focus mode: 25:00
+      expect(screen.getByText('25:00')).toBeInTheDocument()
 
-      // Short break: 01:00（テスト用1分）
+      // Short break: 05:00
       act(() => {
         useTimerStore.getState().switchMode('shortBreak')
       })
       rerender(<HomePage />)
-      expect(screen.getByText('01:00')).toBeInTheDocument()
+      expect(screen.getByText('05:00')).toBeInTheDocument()
 
-      // Long break: 01:00（テスト用1分）
+      // Long break: 15:00
       act(() => {
         useTimerStore.getState().switchMode('longBreak')
       })
       rerender(<HomePage />)
-      expect(screen.getByText('01:00')).toBeInTheDocument()
+      expect(screen.getByText('15:00')).toBeInTheDocument()
     })
   })
 
@@ -265,7 +265,7 @@ describe('Timer Page Integration', () => {
       render(<HomePage />)
 
       // タイマーの時間テキストが表示されていることを確認
-      expect(screen.getByText('02:00')).toBeVisible()
+      expect(screen.getByText('25:00')).toBeVisible()
     })
 
     it('should have session progress information', () => {

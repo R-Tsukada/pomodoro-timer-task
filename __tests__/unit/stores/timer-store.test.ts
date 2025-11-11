@@ -26,7 +26,7 @@ describe('useTimerStore', () => {
       const { result } = renderHook(() => useTimerStore())
 
       expect(result.current.currentMode).toBe('focus')
-      expect(result.current.timeRemaining).toBe(120) // 25 minutes
+      expect(result.current.timeRemaining).toBe(1500) // 25 minutes
       expect(result.current.isRunning).toBe(false)
       expect(result.current.completedSessionsInCycle).toBe(0)
       expect(result.current.completedCycles).toBe(0)
@@ -94,7 +94,7 @@ describe('useTimerStore', () => {
         result.current.resetTimer()
       })
 
-      expect(result.current.timeRemaining).toBe(120)
+      expect(result.current.timeRemaining).toBe(1500)
     })
 
     it('should stop the timer when resetting', () => {
@@ -117,7 +117,7 @@ describe('useTimerStore', () => {
         result.current.resetTimer()
       })
 
-      expect(result.current.timeRemaining).toBe(60) // Short break duration
+      expect(result.current.timeRemaining).toBe(300) // Short break duration
     })
   })
 
@@ -130,7 +130,7 @@ describe('useTimerStore', () => {
         result.current.tick()
       })
 
-      expect(result.current.timeRemaining).toBe(119)
+      expect(result.current.timeRemaining).toBe(1499)
     })
 
     it('should not decrement when paused', () => {
@@ -181,7 +181,7 @@ describe('useTimerStore', () => {
       })
 
       expect(result.current.currentMode).toBe('focus')
-      expect(result.current.timeRemaining).toBe(120)
+      expect(result.current.timeRemaining).toBe(1500)
     })
 
     it('should switch to short break mode', () => {
@@ -192,7 +192,7 @@ describe('useTimerStore', () => {
       })
 
       expect(result.current.currentMode).toBe('shortBreak')
-      expect(result.current.timeRemaining).toBe(60)
+      expect(result.current.timeRemaining).toBe(300)
     })
 
     it('should switch to long break mode', () => {
@@ -203,7 +203,7 @@ describe('useTimerStore', () => {
       })
 
       expect(result.current.currentMode).toBe('longBreak')
-      expect(result.current.timeRemaining).toBe(60)
+      expect(result.current.timeRemaining).toBe(900)
     })
 
     it('should stop timer by default when switching mode', () => {
@@ -287,7 +287,7 @@ describe('useTimerStore', () => {
       })
 
       expect(result.current.currentMode).toBe('focus')
-      expect(result.current.timeRemaining).toBe(120)
+      expect(result.current.timeRemaining).toBe(1500)
     })
 
     it('should reset sessions after long break', () => {
