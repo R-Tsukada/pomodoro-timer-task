@@ -36,7 +36,7 @@ export default function HomePage() {
   const prevCompletedSessionsRef = useRef(completedSessionsInCycle)
   const prevSelectedTaskIdRef = useRef(selectedTask?.id)
   const prevModeRef = useRef(currentMode)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [toast, setToast] = useState<{
     title: string
     message: string
