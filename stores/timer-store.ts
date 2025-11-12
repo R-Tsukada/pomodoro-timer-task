@@ -17,6 +17,7 @@ interface TimerStore {
   pauseTimer: () => void
   resetTimer: () => void
   tick: () => void
+  tickMultiple: (seconds: number) => void
   switchMode: (mode: TimerMode, shouldAutoStart?: boolean) => void
   completeSession: () => void
 
@@ -63,6 +64,41 @@ export const useTimerStore = create<TimerStore>()(
         // 時間が0になったらセッション完了
         if (newTime === 0) {
           get().completeSession()
+        }
+      },
+
+      tickMultiple: (seconds: number) => {
+        const { timeRemaining, isRunning } = get()
+
+        // タイマーが停止中、時間が0、または進める秒数が0以下の場合は何もしない
+        if (!isRunning || timeRemaining <= 0 || seconds <= 0) return
+
+        let remainingSeconds = seconds
+        let currentTime = timeRemaining
+
+        // バックグラウンド時間を処理（複数セッションをまたぐ可能性も考慮）
+        while (remainingSeconds > 0 && currentTime > 0) {
+          if (remainingSeconds >= currentTime) {
+            // 現在のセッションを完了させる
+            remainingSeconds -= currentTime
+            currentTime = 0
+
+            // セッション完了処理を実行
+            get().completeSession()
+
+            // 次のセッションの初期時間を取得
+            currentTime = get().timeRemaining
+
+            // タイマーが自動開始されない場合は停止
+            if (!get().isRunning) {
+              break
+            }
+          } else {
+            // セッション内で完結する場合
+            currentTime -= remainingSeconds
+            remainingSeconds = 0
+            set({ timeRemaining: currentTime })
+          }
         }
       },
 

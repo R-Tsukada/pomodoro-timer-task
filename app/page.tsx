@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTimerStore } from '@/stores/timer-store'
 import { useTasks } from '@/hooks/useTasks'
 import { useNotification } from '@/hooks/useNotification'
+import { useBackgroundSync } from '@/hooks/useBackgroundSync'
 import { CircularTimer } from '@/components/timer/CircularTimer'
 import { TimerControls } from '@/components/timer/TimerControls'
 import { SessionIndicator } from '@/components/timer/SessionIndicator'
@@ -22,6 +23,7 @@ export default function HomePage() {
     pauseTimer,
     resetTimer,
     tick,
+    tickMultiple,
   } = useTimerStore()
 
   const { selectedTask, incrementSessionCount } = useTasks()
@@ -43,6 +45,18 @@ export default function HomePage() {
     message: string
     type: 'success' | 'info' | 'warning' | 'error'
   } | null>(null)
+
+  // バックグラウンド復帰時のコールバック
+  const handleBackgroundResume = useCallback(
+    (elapsedSeconds: number) => {
+      // バックグラウンドで経過した時間をタイマーに反映
+      tickMultiple(elapsedSeconds)
+    },
+    [tickMultiple]
+  )
+
+  // バックグラウンド同期
+  useBackgroundSync(handleBackgroundResume, isRunning)
 
   // タイマーのtick処理（1秒ごと）
   useEffect(() => {
