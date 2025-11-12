@@ -52,11 +52,11 @@ export function clearLocalStorage(): void {
 
 /**
  * バックグラウンド化された時刻を保存する
+ * @param timestamp - 保存するタイムスタンプ（ミリ秒）
  */
-export function saveBackgroundTime(): void {
+export function saveBackgroundTime(timestamp: number): void {
   try {
-    const currentTime = new Date().toISOString()
-    localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, currentTime)
+    localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, timestamp.toString())
   } catch (error) {
     console.error('Failed to save background time:', error)
   }
@@ -64,9 +64,9 @@ export function saveBackgroundTime(): void {
 
 /**
  * バックグラウンド化された時刻を取得し、削除する
- * @returns 保存されていた時刻（ISO 8601形式）、または null
+ * @returns 保存されていたタイムスタンプ（ミリ秒）、または null
  */
-export function getAndClearBackgroundTime(): string | null {
+export function getAndClearBackgroundTime(): number | null {
   try {
     const savedTime = localStorage.getItem(STORAGE_KEYS.BACKGROUND_TIME)
 
@@ -77,9 +77,13 @@ export function getAndClearBackgroundTime(): string | null {
       } catch (removeError) {
         console.error('Failed to remove background time:', removeError)
       }
+
+      // 文字列を数値に変換
+      const timestamp = parseInt(savedTime, 10)
+      return isNaN(timestamp) ? null : timestamp
     }
 
-    return savedTime
+    return null
   } catch (error) {
     console.error('Failed to get background time:', error)
     return null

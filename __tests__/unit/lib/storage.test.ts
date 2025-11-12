@@ -194,28 +194,27 @@ describe('LocalStorage operations', () => {
 
   describe('saveBackgroundTime', () => {
     it('should save current time to localStorage', () => {
-      const beforeTime = new Date().toISOString()
+      const beforeTime = Date.now()
 
-      saveBackgroundTime()
+      saveBackgroundTime(beforeTime)
 
       const saved = localStorage.getItem(STORAGE_KEYS.BACKGROUND_TIME)
       expect(saved).not.toBeNull()
 
-      const afterTime = new Date().toISOString()
-
-      // 保存された時刻が現在時刻の範囲内であることを確認
-      expect(saved!).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
-      expect(saved! >= beforeTime).toBe(true)
-      expect(saved! <= afterTime).toBe(true)
+      // 保存された時刻が数値文字列であることを確認
+      expect(saved).toBe(beforeTime.toString())
     })
 
     it('should overwrite existing background time', () => {
-      localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, '2020-01-01T00:00:00.000Z')
+      const oldTimestamp = 1577836800000 // 2020-01-01
+      localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, oldTimestamp.toString())
 
-      saveBackgroundTime()
+      const newTimestamp = Date.now()
+      saveBackgroundTime(newTimestamp)
 
       const saved = localStorage.getItem(STORAGE_KEYS.BACKGROUND_TIME)
-      expect(saved).not.toBe('2020-01-01T00:00:00.000Z')
+      expect(saved).toBe(newTimestamp.toString())
+      expect(saved).not.toBe(oldTimestamp.toString())
     })
 
     it('should handle localStorage quota exceeded error', () => {
@@ -225,7 +224,7 @@ describe('LocalStorage operations', () => {
       })
 
       // エラーをスローせずに処理されることを確認
-      expect(() => saveBackgroundTime()).not.toThrow()
+      expect(() => saveBackgroundTime(Date.now())).not.toThrow()
 
       // 元に戻す
       localStorage.setItem = originalSetItem
@@ -234,12 +233,12 @@ describe('LocalStorage operations', () => {
 
   describe('getAndClearBackgroundTime', () => {
     it('should get and clear background time', () => {
-      const testTime = '2024-01-01T12:00:00.000Z'
-      localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, testTime)
+      const testTimestamp = 1704110400000 // 2024-01-01 12:00:00 UTC
+      localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, testTimestamp.toString())
 
       const result = getAndClearBackgroundTime()
 
-      expect(result).toBe(testTime)
+      expect(result).toBe(testTimestamp)
       expect(localStorage.getItem(STORAGE_KEYS.BACKGROUND_TIME)).toBeNull()
     })
 
@@ -247,6 +246,15 @@ describe('LocalStorage operations', () => {
       const result = getAndClearBackgroundTime()
 
       expect(result).toBeNull()
+    })
+
+    it('should return null when stored value is not a valid number', () => {
+      localStorage.setItem(STORAGE_KEYS.BACKGROUND_TIME, 'invalid')
+
+      const result = getAndClearBackgroundTime()
+
+      expect(result).toBeNull()
+      expect(localStorage.getItem(STORAGE_KEYS.BACKGROUND_TIME)).toBeNull()
     })
 
     it('should handle localStorage access error', () => {
