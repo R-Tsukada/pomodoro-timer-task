@@ -36,6 +36,7 @@ export default function HomePage() {
   const prevCompletedSessionsRef = useRef(completedSessionsInCycle)
   const prevSelectedTaskIdRef = useRef(selectedTask?.id)
   const prevModeRef = useRef(currentMode)
+  const sessionTaskIdRef = useRef<string | null>(null) // セッション開始時のタスクIDを記録
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [toast, setToast] = useState<{
     title: string
@@ -54,16 +55,20 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [isRunning, tick])
 
-  // Focusセッション完了時に選択中のタスクのセッション数をインクリメント
+  // Focusセッション完了時に、セッション開始時のタスクのセッション数をインクリメント
   useEffect(() => {
     // completedSessionsInCycleが増加した場合、focusセッションが完了したと判断
-    if (completedSessionsInCycle > prevCompletedSessionsRef.current && selectedTask) {
-      incrementSessionCount(selectedTask.id)
+    if (completedSessionsInCycle > prevCompletedSessionsRef.current) {
+      const taskIdToIncrement = sessionTaskIdRef.current
+      if (taskIdToIncrement) {
+        incrementSessionCount(taskIdToIncrement)
+        sessionTaskIdRef.current = null // セッション完了後にリセット
+      }
     }
 
     // 現在の値を保存
     prevCompletedSessionsRef.current = completedSessionsInCycle
-  }, [completedSessionsInCycle, selectedTask, incrementSessionCount])
+  }, [completedSessionsInCycle, incrementSessionCount])
 
   // タスク切り替え時にタイマーをリセット
   useEffect(() => {
@@ -71,14 +76,21 @@ export default function HomePage() {
     const prevTaskId = prevSelectedTaskIdRef.current
 
     // タスクが切り替わった場合（nullから選択、または別のタスクに変更）
-    if (currentTaskId !== prevTaskId && !isRunning) {
-      // タイマーが停止中の場合のみリセット
-      resetTimer()
+    if (currentTaskId !== prevTaskId) {
+      if (isRunning) {
+        // タイマー実行中の場合、強制的に停止してリセット
+        pauseTimer()
+        resetTimer()
+        sessionTaskIdRef.current = null // セッションタスクIDもリセット
+      } else {
+        // タイマー停止中の場合もリセット
+        resetTimer()
+      }
     }
 
     // 現在のタスクIDを保存
     prevSelectedTaskIdRef.current = currentTaskId
-  }, [selectedTask?.id, isRunning, resetTimer])
+  }, [selectedTask?.id, isRunning, pauseTimer, resetTimer])
 
   // セッション完了時の通知
   useEffect(() => {
@@ -130,6 +142,15 @@ export default function HomePage() {
       return () => clearTimeout(timer)
     }
   }, [permission, requestPermission])
+
+  // タイマー開始時のハンドラ（セッション開始タスクを記録）
+  const handleStartTimer = () => {
+    // セッション開始時に現在選択されているタスクのIDを記録
+    if (selectedTask) {
+      sessionTaskIdRef.current = selectedTask.id
+    }
+    startTimer()
+  }
 
   // プログレスバーの計算
   const totalTime = getModeDuration(currentMode)
@@ -297,7 +318,7 @@ export default function HomePage() {
               <div className="w-full flex justify-center mt-4">
                 <TimerControls
                   isRunning={isRunning}
-                  onStart={startTimer}
+                  onStart={handleStartTimer}
                   onPause={pauseTimer}
                   onReset={resetTimer}
                 />
