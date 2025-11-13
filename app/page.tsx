@@ -24,9 +24,12 @@ export default function HomePage() {
     resetTimer,
     tick,
     tickMultiple,
+    switchMode,
+    setTimeRemaining,
+    setCompletedSessions,
   } = useTimerStore()
 
-  const { selectedTask, incrementSessionCount } = useTasks()
+  const { selectedTask, incrementSessionCount, saveTimerState, getTimerState } = useTasks()
   const {
     permission,
     requestPermission,
@@ -84,27 +87,56 @@ export default function HomePage() {
     prevCompletedSessionsRef.current = completedSessionsInCycle
   }, [completedSessionsInCycle, incrementSessionCount])
 
-  // タスク切り替え時にタイマーをリセット
+  // タスク切り替え時にタイマー状態を保存・復元
   useEffect(() => {
     const currentTaskId = selectedTask?.id
     const prevTaskId = prevSelectedTaskIdRef.current
 
     // タスクが切り替わった場合（nullから選択、または別のタスクに変更）
     if (currentTaskId !== prevTaskId) {
+      // 前のタスクの状態を保存
+      if (prevTaskId) {
+        saveTimerState(prevTaskId, {
+          currentMode,
+          timeRemaining,
+          completedSessionsInCycle,
+        })
+      }
+
+      // タイマー実行中の場合は停止
       if (isRunning) {
-        // タイマー実行中の場合、強制的に停止してリセット
         pauseTimer()
-        resetTimer()
         sessionTaskIdRef.current = null // セッションタスクIDもリセット
+      }
+
+      // 新しいタスクの状態を復元
+      if (currentTaskId) {
+        const savedState = getTimerState(currentTaskId)
+        switchMode(savedState.currentMode, false) // autoStartはfalse
+        setTimeRemaining(savedState.timeRemaining)
+        setCompletedSessions(savedState.completedSessionsInCycle)
       } else {
-        // タイマー停止中の場合もリセット
+        // タスク未選択の場合はデフォルトにリセット
         resetTimer()
       }
     }
 
     // 現在のタスクIDを保存
     prevSelectedTaskIdRef.current = currentTaskId
-  }, [selectedTask?.id, isRunning, pauseTimer, resetTimer])
+  }, [
+    selectedTask?.id,
+    isRunning,
+    pauseTimer,
+    resetTimer,
+    saveTimerState,
+    getTimerState,
+    currentMode,
+    timeRemaining,
+    completedSessionsInCycle,
+    switchMode,
+    setTimeRemaining,
+    setCompletedSessions,
+  ])
 
   // セッション完了時の通知
   useEffect(() => {

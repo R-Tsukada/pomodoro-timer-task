@@ -16,6 +16,8 @@ export function useTasks() {
   const toggleTaskCompletion = useTaskStore((state) => state.toggleTaskCompletion)
   const selectTask = useTaskStore((state) => state.selectTask)
   const incrementSessionCount = useTaskStore((state) => state.incrementSessionCount)
+  const saveTimerState = useTaskStore((state) => state.saveTimerState)
+  const getTimerState = useTaskStore((state) => state.getTimerState)
 
   // Computed: 選択中のタスク
   const selectedTask = useTaskStore(selectSelectedTask)
@@ -57,6 +59,8 @@ export function useTasks() {
     toggleTaskCompletion,
     selectTask,
     incrementSessionCount,
+    saveTimerState,
+    getTimerState,
 
     // Computed properties
     activeTasks,

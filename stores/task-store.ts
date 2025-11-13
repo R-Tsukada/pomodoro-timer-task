@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { PomodoroTask } from '@/types/task'
+import { TaskTimerState } from '@/types/timer'
 import { STORAGE_KEYS, DEFAULT_TASKS } from '@/lib/constants'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -15,6 +16,8 @@ interface TaskStore {
   toggleTaskCompletion: (id: string) => void
   selectTask: (id: string | null) => void
   incrementSessionCount: (id: string) => void
+  saveTimerState: (taskId: string, state: TaskTimerState) => void
+  getTimerState: (taskId: string) => TaskTimerState
 }
 
 // Selector (outside of store)
@@ -105,6 +108,38 @@ export const useTaskStore = create<TaskStore>()(
               : task
           ),
         }))
+      },
+
+      saveTimerState: (taskId: string, state: TaskTimerState) => {
+        const now = new Date().toISOString()
+
+        set((currentState) => ({
+          tasks: currentState.tasks.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  timerState: state,
+                  updatedAt: now,
+                }
+              : task
+          ),
+        }))
+      },
+
+      getTimerState: (taskId: string): TaskTimerState => {
+        const task = get().tasks.find((t) => t.id === taskId)
+
+        // タスクに保存された状態がある場合はそれを返す
+        if (task?.timerState) {
+          return task.timerState
+        }
+
+        // デフォルト状態を返す
+        return {
+          currentMode: 'focus',
+          timeRemaining: 1500, // 25分
+          completedSessionsInCycle: 0,
+        }
       },
     }),
     {

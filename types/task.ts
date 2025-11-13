@@ -1,3 +1,5 @@
+import { TaskTimerState } from './timer'
+
 /**
  * ポモドーロタスク
  */
@@ -14,6 +16,8 @@ export interface PomodoroTask {
   createdAt: string
   /** 更新日時（ISO 8601形式） */
   updatedAt: string
+  /** タスク固有のタイマー状態 */
+  timerState?: TaskTimerState
 }
 
 /**

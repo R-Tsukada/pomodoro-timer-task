@@ -43,3 +43,15 @@ export interface TimerSettings {
   /** 通知を有効にするか */
   notificationEnabled: boolean
 }
+
+/**
+ * タスク固有のタイマー状態
+ */
+export interface TaskTimerState {
+  /** 現在のモード */
+  currentMode: TimerMode
+  /** 残り時間（秒） */
+  timeRemaining: number
+  /** 完了したセッション数（0-4） */
+  completedSessionsInCycle: number
+}
